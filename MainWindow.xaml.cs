@@ -50,7 +50,7 @@ namespace XMLEdit
             string location = file.Path == string.Empty ? "Файл не выбран" : file.Path;
             Dispatcher.Invoke(() =>
             {
-                Title = $"XMLEditorDZ -  [{location}] (mental@chaos)";
+                Title = $"XMLEditorDZ -  [{location}] - mental@chaos";
             });
         }
 
@@ -639,7 +639,8 @@ namespace XMLEdit
 
         public Position(double[] array)
         {
-            X = array[0]; Y = array[1]; Z = array[2]; //A = array[3];
+            //X = array[0]; Y = array[1]; Z = array[2]; 
+            X = array[0]; Y = array[2]; Z = array[1]; // Изменена позиция Y и Z в массиве, тк в xml документе позиция прописывается в виде X Z Y :)
         }
 
         public override string ToString()

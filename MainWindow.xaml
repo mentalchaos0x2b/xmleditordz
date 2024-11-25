@@ -227,7 +227,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Text="https://github.com/mentalchaos0x2b" Foreground="White" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown"/>
-                <TextBlock Grid.Column="1" Text="XMLEditorDZ v0.8.2" Foreground="White" HorizontalAlignment="Center" Cursor="Hand" VerticalAlignment="Center" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown_1"/>
+                <TextBlock Grid.Column="1" Text="XMLEditorDZ v0.8.3" Foreground="White" HorizontalAlignment="Center" Cursor="Hand" VerticalAlignment="Center" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown_1"/>
                 <TextBlock Grid.Column="2" Text="mental@chaos © 2024" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Center" />
             </Grid>
         </Border>
