@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="150"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
         </Grid.RowDefinitions>
 
         <Border Visibility="Collapsed" Name="loadingControls" Background="#82000000" Panel.ZIndex="9"></Border>
@@ -20,7 +21,7 @@
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                
+
                 <Image Source="/loading.png" Stretch="Fill" RenderTransformOrigin="0.5,0.5" Width="100" Height="100">
                     <Image.RenderTransform>
                         <TransformGroup>
@@ -29,6 +30,48 @@
                     </Image.RenderTransform>
                 </Image>
                 <TextBlock Grid.Row="1" Text="Ожидание..." HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            </Grid>
+        </Border>
+
+        <Border Visibility="Collapsed" Name="actionWindow" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" Height="250" Background="#CC000000" Panel.ZIndex="2" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Параметр 1:" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Text="Параметр 2:" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="2" Text="Параметр 3:" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="Параметр 4:" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Text="Имя:" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="5" Text="Цвет:" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+                <TextBox Name="query1" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,-80,0"/>
+                <TextBox Name="query2" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,-80,0"/>
+                <TextBox Name="query3" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" Margin="0,0,-80,0"/>
+                <TextBox Name="query4" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" Margin="0,0,-80,0"/>
+                <TextBox Name="queryName" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" Margin="0,0,-80,0"/>
+                <ComboBox Name="selectColor" Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,-80,0" >
+                    <ComboBoxItem IsSelected="True" Content="Red"/>
+                    <ComboBoxItem Content="Green"/>
+                    <ComboBoxItem Content="Blue"/>
+                    <ComboBoxItem Content="Yellow"/>
+                </ComboBox>
+
+                <Button Name="closeAction" Grid.Row="6" Content="Закрыть" VerticalAlignment="Bottom" Grid.Column="0" Click="closeAction_Click"/>
+                <Button Name="selectAction" Grid.Row="6" Content="Выбрать" VerticalAlignment="Bottom" Grid.Column="1" Margin="10,0,-80,0" Click="selectAction_Click"/>
+
             </Grid>
         </Border>
 
@@ -45,7 +88,7 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="20"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        
+
                         <TextBlock Name="notifyTitle" Text="TITLE" VerticalAlignment="Center" Foreground="White" />
                         <Button Name="notifyClose" Content="X" Grid.Column="1" Background="#00000000" BorderBrush="#00707070" Click="notifyClose_Click" Foreground="White"/>
                     </Grid>
@@ -55,7 +98,7 @@
                 </Border>
             </Grid>
         </Border>
-        
+
         <Border Background="#FF292929" Padding="10">
             <Grid>
                 <Grid.RowDefinitions>
@@ -72,7 +115,7 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="10"></ColumnDefinition>
                             <ColumnDefinition Width="100"></ColumnDefinition>
-                            
+
                         </Grid.ColumnDefinitions>
 
                         <Button Name="openDialog" Content="Загрузить файл" Padding="5 0" VerticalAlignment="Center" BorderBrush="#FF333333" Cursor="Hand" Height="25" Click="openDialog_Click" HorizontalAlignment="Center" Width="100"/>
@@ -98,7 +141,7 @@
                                 <RowDefinition></RowDefinition>
                             </Grid.RowDefinitions>
                             <CheckBox Name="createBackup" Content="Создать BACKUP при сохранении" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="True"></CheckBox>
-                            <CheckBox Grid.Row="2" Content="CHECKBOX" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"></CheckBox>
+                            <!-- <CheckBox Grid.Row="2" Content="CHECKBOX" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"></CheckBox> -->
                         </Grid>
                     </Border>
 
@@ -123,8 +166,17 @@
                                 <RowDefinition></RowDefinition>
                             </Grid.RowDefinitions>
 
-                            <TextBox Text="Строка запроса" Foreground="#FF3D3D3D" FontSize="10"/>
-                            <Button Name="applyQuery" Grid.Row="2" Content="Применить" FontSize="10" Click="applyQuery_Click"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition Width="5"></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <Button Name="showAction" Content="Выбрать" FontSize="10" Click="showAction_Click" />
+                                <Button Name="unselectAll" Grid.Column="2" Content="Отменить выделение" FontSize="10" Click="unselectAll_Click" />
+                            </Grid>
+                            <Button Name="deleteSelected" Grid.Row="2" Content="Удалить" FontSize="10" Click="deleteSelected_Click"/>
                         </Grid>
                     </Border>
                 </Grid>
@@ -132,17 +184,6 @@
         </Border>
 
         <Border Grid.Row="1" Padding="10">
-            <!-- <GridViewColumn Header="#" DisplayMemberBinding="{Binding Path=ID}" Width="60"/> -->
-            <!--<ListView Name="clusterListView" Foreground="#FF0B0B0B">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="#" DisplayMemberBinding="{Binding Path=ID}" Width="60"/>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Path=Name}" Width="200"/>
-                        <GridViewColumn Header="Pos" DisplayMemberBinding="{Binding Path=Pos}"/>
-                        <GridViewColumn Header="A" DisplayMemberBinding="{Binding Path=A}" Width="200"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>-->
             <DataGrid Name="clusterListView" AutoGenerateColumns="False" Foreground="#FF0B0B0B">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="#" Binding="{Binding Path=ID}" IsReadOnly="True" Width="60">
@@ -177,5 +218,19 @@
             </DataGrid>
         </Border>
 
+        <Border Background="#FF292929" Grid.Row="2" Padding="5 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="https://github.com/mentalchaos0x2b" Foreground="White" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown"/>
+                <TextBlock Grid.Column="1" Text="XMLEditorDZ v0.8.2" Foreground="White" HorizontalAlignment="Center" Cursor="Hand" VerticalAlignment="Center" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown_1"/>
+                <TextBlock Grid.Column="2" Text="mental@chaos © 2024" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+        
     </Grid>
 </Window>

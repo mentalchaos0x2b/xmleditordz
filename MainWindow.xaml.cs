@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -40,6 +41,8 @@ namespace XMLEdit
             //AdjustColumnWidths();
 
             StartRotationAnimation();
+
+            setEnabledActions(false);
         }
 
         private void setAppTitle()
@@ -47,7 +50,7 @@ namespace XMLEdit
             string location = file.Path == string.Empty ? "Файл не выбран" : file.Path;
             Dispatcher.Invoke(() =>
             {
-                Title = $"XMLEditorDZ -  [{location}]";
+                Title = $"XMLEditorDZ -  [{location}] (mental@chaos)";
             });
         }
 
@@ -66,8 +69,24 @@ namespace XMLEdit
             if (result == true)
             {
                 await Task.Run(() => openFile(dialog.FileNames[0]));
-                if(file.ReadError == string.Empty) showNotify("Успешно", "Файл прочитан", TimeSpan.FromSeconds(2));
-                else showNotify("Ошибка чтения", file.ReadError, TimeSpan.FromSeconds(5), 450);
+                if(file.ReadError == string.Empty)
+                {
+                    showNotify("Успешно", "Файл прочитан", TimeSpan.FromSeconds(2));
+                    Dispatcher.Invoke(() =>
+                    {
+                        setEnabledActions(true);
+                    });
+                }
+                else
+                {
+                    showNotify("Ошибка чтения", file.ReadError, TimeSpan.FromSeconds(5), 450);
+                    Dispatcher.Invoke(() =>
+                    {
+                        setEnabledActions(false);
+                    });
+                }
+
+                //actionWindow.Visibility = Visibility.Collapsed;
             }
             else showNotify("Ошибка", "Файл не был открыт", TimeSpan.FromSeconds(2.5));
             showLoading(false);
@@ -267,8 +286,22 @@ namespace XMLEdit
 
             await Task.Run(() => openFile(args[1]));
 
-            if (file.ReadError == string.Empty) showNotify("Успешно", "Файл прочитан", TimeSpan.FromSeconds(2));
-            else showNotify("Ошибка чтения", file.ReadError, TimeSpan.FromSeconds(5), 450);
+            if (file.ReadError == string.Empty)
+            {
+                showNotify("Успешно", "Файл прочитан", TimeSpan.FromSeconds(2));
+                Dispatcher.Invoke(() =>
+                {
+                    setEnabledActions(true);
+                });
+            }
+            else
+            {
+                showNotify("Ошибка чтения", file.ReadError, TimeSpan.FromSeconds(5), 450);
+                Dispatcher.Invoke(() =>
+                {
+                    setEnabledActions(false);
+                });
+            }
 
             showLoading(false);
         }
@@ -337,14 +370,240 @@ namespace XMLEdit
             notify.Dispatcher.Invoke(() => { notify.Visibility = Visibility.Collapsed; });
         }
 
-        private void applyQuery_Click(object sender, RoutedEventArgs e)
+        private void deleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                showLoading(true);
+                int deleteCount = 0;
+
+                for (int i = file.ClusterList.Count - 1; i >= 0; i--)
+                {
+                    if (file.ClusterList[i].Selected)
+                    {
+                        file.ClusterList.RemoveAt(i);
+                        deleteCount++;
+                    }
+                }
+
+                for (int i = file.ClusterList.Count - 1; i >= 0; i--)
+                {
+                    file.ClusterList[i].SetID(i + 1);
+                }
+
+                showNotify("Успешно", $"Удалено {deleteCount} объектов", TimeSpan.FromSeconds(5));
+                showLoading(false);
+            });
+        }
+
+        private void showAction_Click(object sender, RoutedEventArgs e)
+        {
+            actionWindow.Visibility = Visibility.Visible;
+        }
+
+        private void closeAction_Click(object sender, RoutedEventArgs e)
+        {
+            actionWindow.Visibility = Visibility.Collapsed;
+        }
+
+        private void parseQuery()
+        {
+            string query_1 = query1.Text;
+            string query_2 = query2.Text;
+            string query_3 = query3.Text;
+            string query_4 = query4.Text;
+            string query_name = queryName.Text;
+
+            QueryOptions option1 = new QueryOptions(query_1);
+            QueryOptions option2 = new QueryOptions(query_2);
+            QueryOptions option3 = new QueryOptions(query_3);
+            QueryOptions option4 = new QueryOptions(query_4);
+
+            Dispatcher.Invoke(() => {
+                string color = string.Empty;
+                switch (selectColor.Text)
+                {
+                    case "Red":
+                        color = SelectColor.Red.String();
+                        break;
+                    case "Blue":
+                        color = SelectColor.Blue.String();
+                        break;
+                    case "Green":
+                        color = SelectColor.Green.String();
+                        break;
+                    case "Yellow":
+                        color = SelectColor.Yellow.String();
+                        break;
+                    default:
+                        color = SelectColor.Red.String();
+                        break;
+                }
+
+                int selectCount = 0;
+
+                foreach (Cluster item in file.ClusterList)
+                {
+                    if (option1.Get(item.PositionTranslate()) && option2.Get(item.PositionTranslate()) && option3.Get(item.PositionTranslate()) && option4.Get(item.PositionTranslate()))
+                    {
+                        if(query_name != string.Empty && item.Name == query_name)
+                        {
+                            item.Select(color);
+                            selectCount++;
+                        }
+                        else if(query_name == string.Empty)
+                        {
+                            item.Select(color);
+                            selectCount++;
+                        }
+                        
+                    }
+                }
+
+                showNotify("Успешно", $"Выбрано {selectCount} объектов", TimeSpan.FromSeconds(5));
+            });
+        }
+
+        private void selectAction_Click(object sender, RoutedEventArgs e)
+        {
+            showLoading(true);
+            parseQuery();
+            actionWindow.Visibility = Visibility.Collapsed;
+            showLoading(false);
+        }
+
+        private void setEnabledActions(bool IsEnabled)
+        {
+            showAction.IsEnabled = IsEnabled;
+            unselectAll.IsEnabled = IsEnabled;
+            deleteSelected.IsEnabled = IsEnabled;
+        }
+
+        private void unselectAll_Click(object sender, RoutedEventArgs e)
         {
             Dispatcher.Invoke(() => {
-                file.ClusterList[0].Select(SelectColor.Red.String());
-                file.ClusterList[2].Select(SelectColor.Yellow.String());
-                file.ClusterList[4].Select(SelectColor.Blue.String());
-                file.ClusterList[6].Select(SelectColor.Green.String());
+                showLoading(true);
+                foreach (Cluster item in file.ClusterList)
+                {
+                    item.UnSelect();
+                }
+                showLoading(false);
             });
+        }
+
+        private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("https://github.com/mentalchaos0x2b");
+        }
+
+        private void TextBlock_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("https://github.com/mentalchaos0x2b/xmleditordz");
+        }
+    }
+
+    public class QueryOptions
+    {
+        public string Target;
+        public string Expression;
+        public double Value;
+        public string Error {  get; set; } = string.Empty;
+        public bool IsEmpty { get; set; }
+
+        public QueryOptions(string query)
+        {
+            if (query == string.Empty)
+            {
+                IsEmpty = true;
+                return;
+            }
+                
+            Target = parsePos(query);
+            Expression = parseExp(query);
+            Value = parseValue(query);
+        }
+
+        public bool Get(Position pos)
+        {
+            if(IsEmpty) return IsEmpty;
+
+            switch(Target)
+            {
+                case "X":
+                    switch(Expression)
+                    {
+                        case "=": return pos.X == Value;
+                        case ">": return pos.X > Value;
+                        case "<": return pos.X < Value;
+                        default: return false;
+                    }
+                case "Y":
+                    switch (Expression)
+                    {
+                        case "=": return pos.Y == Value;
+                        case ">": return pos.Y > Value;
+                        case "<": return pos.Y < Value;
+                        default: return false;
+                    }
+                case "Z":
+                    switch (Expression)
+                    {
+                        case "=": return pos.Z == Value;
+                        case ">": return pos.Z > Value;
+                        case "<": return pos.Z < Value;
+                        default: return false;
+                    }
+                //case "A":
+                //    switch (Expression)
+                //    {
+                //        case "=": return pos.A == Value;
+                //        case ">": return pos.A > Value;
+                //        case "<": return pos.A < Value;
+                //        default: return false;
+                //    }
+                default: return false;
+            }
+        }
+
+        private string parsePos(string query)
+        {
+            switch (query[0])
+            {
+                case 'X': break;
+                case 'Y': break;
+                case 'Z': break;
+                case 'A': break;
+                default: return "PARSE_ERROR";
+            }
+
+            return query[0].ToString();
+        }
+
+        private string parseExp(string query)
+        {
+            switch (query[1])
+            {
+                case '=': break;
+                case '>': break;
+                case '<': break;
+                default: return "PARSE_ERROR";
+            }
+
+            return query[1].ToString();
+        }
+
+        private double parseValue(string query)
+        {
+            try
+            {
+                string buffer = query.Substring(2, query.Length - 2).Replace('.', ',');
+                double value = double.Parse(buffer);
+                return value;
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 
@@ -376,10 +635,11 @@ namespace XMLEdit
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
+        public double A {  get; set; }
 
         public Position(double[] array)
         {
-            X = array[0]; Y = array[1]; Z = array[2];
+            X = array[0]; Y = array[1]; Z = array[2]; //A = array[3];
         }
 
         public override string ToString()
@@ -514,6 +774,7 @@ namespace XMLEdit
         {
             string[] stringArray = Pos.Split(' ');
             double[] doubleArray = stringArray.Select(x => double.Parse(x.Replace('.', ','))).ToArray();
+            //doubleArray[3] = double.Parse(A.Replace('.', ','));
             return new Position(doubleArray);
         }
 
